@@ -140,12 +140,31 @@ class CrawlInstagram():
                 self.last_checked_timestamp = datetime.now()
                 
                 # Wait before checking again
-                time.sleep(10)  # Check every 10 seconds
+                time.sleep(3)  # Check every 10 seconds
                 
             except Exception as e:
                 print(f"Error checking messages: {e}")
-                time.sleep(30)  # Wait longer if there's an error
+                time.sleep(10)  # Wait longer if there's an error
     
+    def process_message_with_ai(self, message_text, thread_id):
+        """Process message with Google AI and send response"""
+        try:
+            # Initialize Google AI client
+            clientAI = googleAI()
+            
+            # Get AI response for the message
+            ai_response = clientAI.GetAI_Text(message_text)  # Assuming you have this method in googleAI class
+            
+            # Send the AI response back as a direct message
+            self.cl.direct_answer(thread_id, str(ai_response))
+            
+            print(f"AI Response sent: {ai_response}")
+            
+        except Exception as e:
+            print(f"Error processing message with AI: {e}")
+            # Send an error message to user
+            self.cl.direct_answer(thread_id, "Sorry, I couldn't process your message at the moment.")
+
     def _process_message(self, message, thread):
         """Process a single message"""
         try:
@@ -157,8 +176,11 @@ class CrawlInstagram():
             # Handle different types of messages
             if message.item_type == "text":
                 print(f"Text message: {message.text}")
+                # Process text message with AI and send response
+                self.process_message_with_ai(message.text, thread.id)
             elif message.item_type == "media":
                 print(f"Media message: {message.media.url}")
+                # You could add media processing here if needed
             elif message.item_type == "voice_media":
                 print(f"Voice message: {message.voice_media.url}")
             else:

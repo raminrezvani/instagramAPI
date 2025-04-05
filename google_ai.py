@@ -30,7 +30,6 @@ import PIL.Image
 
 class googleAI:
     def __init__(self):
-        # api_key = "AIzaSyBk8LlBibrTqhcfuLQ0tu29n-5ocTgO5ZE"
         self.api_key="AIzaSyBmSb_smXgwbye1ckY9ZIt8pAdhIdq9c1M"
         self.client = genai.Client(api_key=self.api_key)
         self.prompt=prompt
@@ -134,3 +133,19 @@ class googleAI:
 #
 # parsed_json = clientAI.GetAI_Image()
 # base_parsed_json=parsed_json
+
+    def GetAI_Text(self, text):
+        """Process text input with Google AI"""
+        try:
+            response = self.client.models.generate_content(
+                model="gemini-2.0-flash-lite-001",
+                contents=[
+                    "You are a helpful AI assistant. Please respond to this message: " + text
+                ])
+            
+            return response.text
+            
+        except Exception as e:
+            print('Error in GetAI_Text')
+            print(str(e))
+            return 'Sorry, I encountered an error processing your message.'
