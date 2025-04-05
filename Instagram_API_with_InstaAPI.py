@@ -114,6 +114,62 @@ class CrawlInstagram():
         self.future_ai = []
         self.itter=1
         self.lst_videos=[]
+        # Add this line to initialize last_checked_timestamp
+        self.last_checked_timestamp = datetime.now()
+
+    def check_direct_messages(self):
+        """Check for new direct messages and process them"""
+        while True:
+            try:
+                # Get all threads (conversations)
+                threads = self.cl.direct_threads()
+                
+                for thread in threads:
+                    # Get messages from thread
+                    messages = self.cl.direct_messages(thread.id)
+                    
+                    for message in messages:
+                        # Fix timestamp calculation
+                        message_time = datetime.fromtimestamp(message.timestamp.timestamp())
+                        
+                        if message_time > self.last_checked_timestamp:
+                            # Process new message
+                            self._process_message(message, thread)
+                
+                # Update last checked timestamp
+                self.last_checked_timestamp = datetime.now()
+                
+                # Wait before checking again
+                time.sleep(10)  # Check every 10 seconds
+                
+            except Exception as e:
+                print(f"Error checking messages: {e}")
+                time.sleep(30)  # Wait longer if there's an error
+    
+    def _process_message(self, message, thread):
+        """Process a single message"""
+        try:
+            sender = thread.users[0].username if thread.users else "Unknown"
+            
+            print(f"\nNew message from: {sender}")
+            print(f"Thread ID: {thread.id}")
+            
+            # Handle different types of messages
+            if message.item_type == "text":
+                print(f"Text message: {message.text}")
+            elif message.item_type == "media":
+                print(f"Media message: {message.media.url}")
+            elif message.item_type == "voice_media":
+                print(f"Voice message: {message.voice_media.url}")
+            else:
+                print(f"Other message type: {message.item_type}")
+            
+            # You can add automatic replies here
+            # self.cl.direct_answer(thread.id, f"Thanks for your message: {message.text}")
+            
+        except Exception as e:
+            print(f"Error processing message: {e}")
+
     def downloadVideo(self,videoURL,videoID):
         response = requests.get(videoURL)
         with open(f"InstagramVideoDownloaded/video_{videoID}.mp4", "wb") as f:
@@ -563,14 +619,14 @@ class CrawlInstagram():
 
 
 #-- calling
-obj_insta=CrawlInstagram()
+# obj_insta=CrawlInstagram()
 
 #=========================
 # get Explore
 # obj_insta.get_explore_posts()
 
 # AI for Video
-obj_insta.Batch_ai()
+# obj_insta.Batch_ai()
 
 #AI for Image
 # obj_insta.Batch_ai_Image()
@@ -583,7 +639,7 @@ obj_insta.Batch_ai()
 # hashtag='بدنسازی'
 # obj_insta.get_Comments(hashtag)
 # obj_insta.get_images(hashtag)
-obj_insta.get_feeds()
+# obj_insta.get_feeds()
 
 
 
@@ -681,3 +737,9 @@ obj_insta.get_feeds()
 # get feeds
 # timeline_feed = cl.get_timeline_feed()
 #----------------------------
+
+
+
+# To use the direct message checker, add this to your main execution:
+obj_insta = CrawlInstagram()
+obj_insta.check_direct_messages()  # This will run continuously
