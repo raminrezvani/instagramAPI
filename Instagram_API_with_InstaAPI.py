@@ -144,7 +144,7 @@ class CrawlInstagram():
         print(f'SpendTime =={spendtime}')
         print('finish')
 
-
+    #asdasd
 
     def Batch_ai_Image(self):
 
