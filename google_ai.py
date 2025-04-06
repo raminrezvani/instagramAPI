@@ -81,8 +81,8 @@ class googleAI:
         try:
             # Pass the video file reference like any other media part.
             response = self.client.models.generate_content(
-                # model="gemini-1.5-pro",
-                model="gemini-2.0-flash-lite-001",
+                model="gemini-1.5-pro",
+                # model="gemini-2.0-flash-lite-001",
                 contents=[
                     self.video_file,
                     self.prompt

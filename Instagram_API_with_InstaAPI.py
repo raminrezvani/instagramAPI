@@ -105,7 +105,7 @@ class CrawlInstagram():
         self.cl=self.load_account()
         self.myclient2 = pymongo.MongoClient('mongodb://45.149.76.168:13667')
         self.mydb2 = self.myclient2["Mohaddes_Project"]
-        self.mycol_write_posts = self.mydb2["Post_Hashtags"]
+        self.mycol_write_posts = self.mydb2["Post_Hashtags_1404"]
 
         self.timeline_feed=''
         self.executor=ThreadPoolExecutor(max_workers=100)
@@ -583,7 +583,7 @@ obj_insta.Batch_ai()
 # hashtag='بدنسازی'
 # obj_insta.get_Comments(hashtag)
 # obj_insta.get_images(hashtag)
-obj_insta.get_feeds()
+# obj_insta.get_feeds()
 
 
 
