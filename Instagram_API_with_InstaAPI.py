@@ -123,28 +123,105 @@ class CrawlInstagram():
     def Batch_ai(self):
         from pathlib import Path
         directory = "InstagramVideoDownloaded"
-
+        
+        # Create new collection for AI results
+        self.mycol_ai_results = self.mydb2["AI_Analysis_Results"]
+        
         path = Path(directory)
-        files=[file.name for file in path.iterdir() if file.is_file()]
-
+        files = [file.name for file in path.iterdir() if file.is_file()]
+    
         for file in files:
-            file_path=os.path.join(directory,file)
-            self.future_ai.append(self.executorAI.submit(self.google_ai_perform,file_path,file))
-            # self.google_ai_perform( file_path,file)
-        print('pass')
-
-        t1=datetime.now()
+            file_path = os.path.join(directory, file)
+            self.future_ai.append(self.executorAI.submit(self.google_ai_perform_and_save, file_path, file))
+        
+        print('Processing started...')
+    
+        t1 = datetime.now()
         for fu in self.future_ai:
             try:
                 fu.result()
             except Exception as e:
-                print(f'a task is failed with error {e}')
-        t2=datetime.now()
-        spendtime=(t2-t1).total_seconds()
+                print(f'a task failed with error {e}')
+        t2 = datetime.now()
+        spendtime = (t2-t1).total_seconds()
         print(f'SpendTime =={spendtime}')
         print('finish')
+    
+    def google_ai_perform_and_save(self, video_path, videoID):
+        try:
+            clientAI = googleAI()
+            clientAI.UploadVideo(video_path)
+            parsed_json = clientAI.GetAI()
+            
+            # Prepare data for MongoDB
+            ai_result = {
+                "video_id": videoID,
+                "video_path": video_path,
+                "analysis_date": datetime.now(),
+                "raw_ai_response": parsed_json,
+                
+                # Map AI response to API fields
+                "content_type": ["Video"],
+                "topics": list(parsed_json.get("Topics", {}).keys()),
+                "emotions": parsed_json.get("Subcategory of Feels and Emotion", []),
+                "languages": parsed_json.get("Language", []),
+                "sensitivity": parsed_json.get("Sensitivity", []),
+                "gender": parsed_json.get("Gender", []),
+                "audience": parsed_json.get("Audience", []),
+                "age_range": parsed_json.get("Age Range", []),
+                
+                # Additional fields with default values
+                "true_explore_mode": "Enabled",
+                "credibility": ["Regular Poster"],
+                "social_activities": [],
+                "content_verification": parsed_json.get("Content Verification", []),
+                "source": ["User Generated"],
+                "post_time": ["Today"],
+                "sentiment": ["Neutral"],
+                "lifestyles_personal": list(parsed_json.get("Topics", {}).get("Lifestyle & Personal", {}).keys()),
+                "trends": ["Stable"]
+            }
+            
+            # Save to MongoDB
+            self.mycol_ai_results.update_one(
+                {"video_id": videoID},
+                {"$set": ai_result},
+                upsert=True
+            )
+            
+            # Continue with existing folder organization logic
+            # ---- insert into folder
+            # Get the main folder name (the top-level key)
+            try:
+                main_folder = list(parsed_json.keys())[0]  # "Travel, Adventure & Nature"
+            except:
+                return ''
+        
+            # Get the subfolder name (the nested key)
+            sub_folder = list(parsed_json[main_folder].keys())[0]  # "City Guides"
+        
+            # Create the main folder
+            os.makedirs(main_folder, exist_ok=True)
+        
+            # Create the subfolder inside the main folder
+            subfolder_path = os.path.join(main_folder, sub_folder)
+            os.makedirs(subfolder_path, exist_ok=True)
+        
+            destination_file_path = os.path.join(subfolder_path, f"video_{videoID}.mp4")
+            # Copy the file
+            shutil.copy(video_path, destination_file_path)
+        
+            # Create Json file
+            jsonPath=destination_file_path.replace('.mp4','.json')
+            # fileName=destination_file_path.split('\\')[-1].replace('.mp4','')+'.json'
+            # jsonPath=os.path.join(destination_file_path.split('\\')[0:-1],fileName)
+            # with open(jsonPath,'w') as f:
+            #     f.write(str(json.dumps(base_parsed_json)))
+        
+        except Exception as e:
+            print(f"Error processing video {videoID}: {str(e)}")
+            return ''
 
-    #asdasd
 
     def Batch_ai_Image(self):
 
@@ -209,8 +286,8 @@ class CrawlInstagram():
 
             # Create Json file
             jsonPath = destination_file_path.replace('.jpg', '.json')
-            with open(jsonPath, 'w') as f:
-                f.write(str(json.dumps(base_parsed_json)))
+            # with open(jsonPath, 'w') as f:
+            #     f.write(str(json.dumps(base_parsed_json)))
 
         except Exception as e:
             print(str(e))
@@ -257,11 +334,11 @@ class CrawlInstagram():
             shutil.copy(video_path, destination_file_path)
 
             # Create Json file
-            jsonPath=destination_file_path.replace('.mp4','.json')
+            # jsonPath=destination_file_path.replace('.mp4','.json')
             # fileName=destination_file_path.split('\\')[-1].replace('.mp4','')+'.json'
             # jsonPath=os.path.join(destination_file_path.split('\\')[0:-1],fileName)
-            with open(jsonPath,'w') as f:
-                f.write(str(json.dumps(base_parsed_json)))
+            # with open(jsonPath,'w') as f:
+            #     f.write(str(json.dumps(base_parsed_json)))
 
         except Exception as e:
             print(str(e))
@@ -390,6 +467,7 @@ class CrawlInstagram():
                     with open(f"InstagramVideoDownloaded/video_{videoID}.mp4", "wb") as f:
                         f.write(response.content)
                     print(f'InstagramVideoDownloaded/video _ {videoID}___ is downloaded successfully.')
+
 
 
 

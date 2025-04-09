@@ -332,4 +332,99 @@ fill this template json based on video. only give json template .
   
 }
 
+Note: When filling this template:
+1. Select only one main topic category and one subtopic within it
+2. Choose one language from the Language options
+3. Select one emotion from Subcategory of Feels and Emotion
+4. Pick one appropriate Age Range
+5. Include relevant Content Verification metrics
+6. Determine appropriate Sensitivity level
+7. Specify Gender if applicable
+8. Choose most relevant Audience category
+9. Note any relevant Fear and Phobias if present
+10. Assess Digital Mental Health concerns if applicable
+
+The response should be structured as a single JSON object with only one selection per category.
+
+Additional API Parameters Mapping:
+
+{
+  "API Configuration": {
+    "trueExploreMode": ["Enabled", "Disabled"],
+    
+    "contentType": [
+      "Video",
+      "Image",
+      "Carousel",
+      "Text",
+      "Story",
+      "Reel",
+      "Live"
+    ],
+    
+    "credibility": [
+      "Verified Account",
+      "High Engagement",
+      "Regular Poster",
+      "Trusted Source",
+      "Expert in Field",
+      "Community Leader"
+    ],
+    
+    "socialActivities": [
+      "Comments",
+      "Shares",
+      "Saves",
+      "Direct Messages",
+      "Mentions",
+      "Story Interactions",
+      "Live Participation"
+    ],
+    
+    "source": [
+      "User Generated",
+      "Professional Content",
+      "Brand Content",
+      "Influencer Content",
+      "News Media",
+      "Educational Institution",
+      "Government Organization"
+    ],
+    
+    "postTime": [
+      "Last Hour",
+      "Today",
+      "This Week",
+      "This Month",
+      "This Year",
+      "Custom Range"
+    ],
+    
+    "sentiment": [
+      "Positive",
+      "Negative",
+      "Neutral",
+      "Mixed",
+      "Controversial"
+    ],
+    
+    "trends": [
+      "Viral",
+      "Rising",
+      "Trending",
+      "Stable",
+      "Declining",
+      "Seasonal",
+      "Evergreen"
+    ]
+  }
+}
+
+Note: When filling both templates:
+1. Select only one value for each parameter
+2. Ensure consistency between related fields (e.g., if selecting "Video" as contentType, make sure other selections align with video content)
+3. Consider the context of the content when mapping API parameters
+4. Map existing template categories to corresponding API parameters where applicable
+5. Maintain logical relationships between main template selections and API parameters
+6. Ensure selected values create a coherent content profile
 """
