@@ -3,7 +3,7 @@
 #https://github.com/subzeroid/instagrapi/tree/master/docker
 #https://subzeroid.github.io/instagrapi/usage-guide/hashtag.html
 from dataclasses import replace
-
+from pathlib import Path
 #https://oxylabs.io/?utm_source=1430&utm_medium=affiliate&groupid=1430&transaction_id=1028580e4704eef6a6e748edfc0a8c
 #https://api.hikerapi.com/docs
 #https://hikerapi.com/p/bkXQlaVe
@@ -57,9 +57,13 @@ import json
 # cl = Client()
 # print('asdasd')
 # cl.login(ACCOUNT_USERNAME, ACCOUNT_PASSWORD)
-ACCOUNT_USERNAME='sirpostchirr@gmail.com'
-ACCOUNT_PASSWORD='rezvanrr2001'
-SESSION_FILE = "session.json"
+# ACCOUNT_USERNAME='sirpostchirr@gmail.com'
+# ACCOUNT_PASSWORD='rezvanrr2001'
+
+
+ACCOUNT_USERNAME='0101test0101'
+ACCOUNT_PASSWORD='em2n2ic27dH9mNA'
+SESSION_FILE = "session_0101test0101.json"
 
 # cl.login(ACCOUNT_USERNAME, ACCOUNT_PASSWORD)
 
@@ -100,249 +104,84 @@ SESSION_FILE = "session_0101test0101.json"
 import pymongo
 from concurrent.futures import ThreadPoolExecutor
 
-class CrawlInstagram():
+class CrawlInstagram:
     def __init__(self):
-        self.cl=self.load_account()
+        # Constants
+        self.VIDEO_DOWNLOAD_DIR = 'InstagramVideoDownloaded'
+        self.IMAGE_DOWNLOAD_DIR = 'InstagramImageDownloaded'
+        self.DB_CONNECTION = 'mongodb://45.149.76.168:13667'
+        self.DB_NAME = 'Mohaddes_Project'
+        
+        # Initialize directories
+        self._init_directories()
+
+        # Initialize connections
+        self.cl = self._init_instagram_client()
+        self.db_client = self._init_database()
+        
+        # Initialize thread pools
+        self.media_executor = ThreadPoolExecutor(max_workers=100)
+        self.ai_executor = ThreadPoolExecutor(max_workers=1)
+        
+        # State tracking
+        self.processed_videos = set()  # Using set for O(1) lookup
+        self.media_futures = []
+        self.ai_futures = []
+        self.media_counter = 1
+        
+        # Fix: Initialize lst_videos and itter
+        self.lst_videos = []
+        self.itter = 1
+
+        self.future_ai = []
         self.myclient2 = pymongo.MongoClient('mongodb://45.149.76.168:13667')
         self.mydb2 = self.myclient2["Mohaddes_Project"]
-        self.mycol_write_posts = self.mydb2["Post_Hashtags_1404"]
+        self.executorAI = ThreadPoolExecutor(max_workers=1)
+    def _init_directories(self):
+        """Initialize required directories"""
+        os.makedirs(self.VIDEO_DOWNLOAD_DIR, exist_ok=True)
+        os.makedirs(self.IMAGE_DOWNLOAD_DIR, exist_ok=True)
 
-        self.timeline_feed=''
-        self.executor=ThreadPoolExecutor(max_workers=100)
-        self.executorAI=ThreadPoolExecutor(max_workers=1)
-        self.future=[]
-        self.future_ai = []
-        self.itter=1
-        self.lst_videos=[]
-    def downloadVideo(self,videoURL,videoID):
-        response = requests.get(videoURL)
-        with open(f"InstagramVideoDownloaded/video_{videoID}.mp4", "wb") as f:
-            f.write(response.content)
-        print(f'InstagramVideoDownloaded/video _ {videoID}___ is downloaded successfully.')
+    def _init_database(self):
+        """Initialize MongoDB connection and collections"""
+        client = pymongo.MongoClient(self.DB_CONNECTION)
+        db = client[self.DB_NAME]
+        self.posts_collection = db["Post_INFO_1404"]
+        self.ai_results_collection = db["AI_Analysis_Results"]
+        return client
 
-    def Batch_ai(self):
-        from pathlib import Path
-        directory = "InstagramVideoDownloaded"
-        
-        # Create new collection for AI results
-        self.mycol_ai_results = self.mydb2["AI_Analysis_Results"]
-        
-        path = Path(directory)
-        files = [file.name for file in path.iterdir() if file.is_file()]
-    
-        for file in files:
-            file_path = os.path.join(directory, file)
-            self.future_ai.append(self.executorAI.submit(self.google_ai_perform_and_save, file_path, file))
-        
-        print('Processing started...')
-    
-        t1 = datetime.now()
-        for fu in self.future_ai:
-            try:
-                fu.result()
-            except Exception as e:
-                print(f'a task failed with error {e}')
-        t2 = datetime.now()
-        spendtime = (t2-t1).total_seconds()
-        print(f'SpendTime =={spendtime}')
-        print('finish')
-    
-    def google_ai_perform_and_save(self, video_path, videoID):
+    def _init_instagram_client(self):
+        """Initialize Instagram client with session handling"""
+        cl = Client()
         try:
-            clientAI = googleAI()
-            clientAI.UploadVideo(video_path)
-            parsed_json = clientAI.GetAI()
-            
-            # Prepare data for MongoDB
-            ai_result = {
-                "video_id": videoID,
-                "video_path": video_path,
-                "analysis_date": datetime.now(),
-                "raw_ai_response": parsed_json,
-                
-                # Map AI response to API fields
-                "content_type": ["Video"],
-                "topics": list(parsed_json.get("Topics", {}).keys()),
-                "emotions": parsed_json.get("Subcategory of Feels and Emotion", []),
-                "languages": parsed_json.get("Language", []),
-                "sensitivity": parsed_json.get("Sensitivity", []),
-                "gender": parsed_json.get("Gender", []),
-                "audience": parsed_json.get("Audience", []),
-                "age_range": parsed_json.get("Age Range", []),
-                
-                # Additional fields with default values
-                "true_explore_mode": "Enabled",
-                "credibility": ["Regular Poster"],
-                "social_activities": [],
-                "content_verification": parsed_json.get("Content Verification", []),
-                "source": ["User Generated"],
-                "post_time": ["Today"],
-                "sentiment": ["Neutral"],
-                "lifestyles_personal": list(parsed_json.get("Topics", {}).get("Lifestyle & Personal", {}).keys()),
-                "trends": ["Stable"]
-            }
-            
-            # Save to MongoDB
-            self.mycol_ai_results.update_one(
-                {"video_id": videoID},
-                {"$set": ai_result},
-                upsert=True
-            )
-            
-            # Continue with existing folder organization logic
-            # ---- insert into folder
-            # Get the main folder name (the top-level key)
-            try:
-                main_folder = list(parsed_json.keys())[0]  # "Travel, Adventure & Nature"
-            except:
-                return ''
-        
-            # Get the subfolder name (the nested key)
-            sub_folder = list(parsed_json[main_folder].keys())[0]  # "City Guides"
-        
-            # Create the main folder
-            os.makedirs(main_folder, exist_ok=True)
-        
-            # Create the subfolder inside the main folder
-            subfolder_path = os.path.join(main_folder, sub_folder)
-            os.makedirs(subfolder_path, exist_ok=True)
-        
-            destination_file_path = os.path.join(subfolder_path, f"video_{videoID}.mp4")
-            # Copy the file
-            shutil.copy(video_path, destination_file_path)
-        
-            # Create Json file
-            jsonPath=destination_file_path.replace('.mp4','.json')
-            # fileName=destination_file_path.split('\\')[-1].replace('.mp4','')+'.json'
-            # jsonPath=os.path.join(destination_file_path.split('\\')[0:-1],fileName)
-            # with open(jsonPath,'w') as f:
-            #     f.write(str(json.dumps(base_parsed_json)))
-        
-        except Exception as e:
-            print(f"Error processing video {videoID}: {str(e)}")
-            return ''
+            with open(SESSION_FILE, "r") as f:
+                cl.set_settings(json.load(f))
+            cl.get_timeline_feed()  # Test session
+            print("Session restored successfully")
+        except Exception:
+            cl = Client()
+            cl.login(ACCOUNT_USERNAME, ACCOUNT_PASSWORD)
+            with open(SESSION_FILE, "w") as f:
+                json.dump(cl.get_settings(), f)
+            print("New session created")
+        return cl
 
-
-    def Batch_ai_Image(self):
-
-        from pathlib import Path
-        directory = "InstagramImageDownloaded"
-
-        path = Path(directory)
-        files=[file.name for file in path.iterdir() if file.is_file()]
-
-        for file in files:
-            file_path=os.path.join(directory,file)
-            self.future_ai.append(self.executorAI.submit(self.google_ai_perform_image,file_path,file))
-            # self.google_ai_perform( file_path,file)
-        print('pass')
-
-        t1=datetime.now()
-        for fu in self.future_ai:
-            try:
-                fu.result()
-            except Exception as e:
-                print(f'a task is failed with error {e}')
-        t2=datetime.now()
-        spendtime=(t2-t1).total_seconds()
-        print(f'SpendTime =={spendtime}')
-        print('finish')
-
-
-
-    def google_ai_perform_image(self,image_path,imageID):
+    def download_media(self, url, media_type, media_id):
+        """Media download handler"""
         try:
-            clientAI = googleAI()
-            parsed_json = clientAI.GetAI_Image(image_path)
-            base_parsed_json = parsed_json
-            try:
-                parsed_json = parsed_json['topics']
-            except:
-                ''
-            try:
-                parsed_json = parsed_json['Topics']
-            except:
-                ''
-            # ---- insert into folder
-            # Get the main folder name (the top-level key)
-            try:
-                main_folder = list(parsed_json.keys())[0]  # "Travel, Adventure & Nature"
-            except:
-                return ''
-
-            # Get the subfolder name (the nested key)
-            sub_folder = list(parsed_json[main_folder].keys())[0]  # "City Guides"
-
-            # Create the main folder
-            os.makedirs(main_folder, exist_ok=True)
-
-            # Create the subfolder inside the main folder
-            subfolder_path = os.path.join(main_folder, sub_folder)
-            os.makedirs(subfolder_path, exist_ok=True)
-
-            destination_file_path = os.path.join(subfolder_path, f"image_{imageID}.jpg")
-            # Copy the file
-            shutil.copy(image_path, destination_file_path)
-
-            # Create Json file
-            jsonPath = destination_file_path.replace('.jpg', '.json')
-            # with open(jsonPath, 'w') as f:
-            #     f.write(str(json.dumps(base_parsed_json)))
-
+            response = requests.get(url)
+            download_dir = self.VIDEO_DOWNLOAD_DIR if media_type == 'video' else self.IMAGE_DOWNLOAD_DIR
+            extension = '.mp4' if media_type == 'video' else '.jpg'
+            
+            file_path = os.path.join(download_dir, f"{media_type}_{media_id}{extension}")
+            with open(file_path, "wb") as f:
+                f.write(response.content)
+            
+            print(f'{file_path} downloaded successfully')
+            return file_path
         except Exception as e:
-            print(str(e))
-            return ''
-        pass
-
-    def google_ai_perform(self,video_path,videoID):
-        # ---
-        try:
-            clientAI = googleAI()
-            clientAI.UploadVideo(video_path)
-            parsed_json = clientAI.GetAI()
-            base_parsed_json=parsed_json
-            # t2 = datetime.now()
-            # spendTime = (t2 - t1).total_seconds()
-            # print(f'Timespend ==== {spendTime}')
-            try:
-                parsed_json = parsed_json['topics']
-            except:
-                ''
-            try:
-                parsed_json = parsed_json['Topics']
-            except:
-                ''
-            # ---- insert into folder
-            # Get the main folder name (the top-level key)
-            try:
-                main_folder = list(parsed_json.keys())[0]  # "Travel, Adventure & Nature"
-            except:
-                return ''
-
-            # Get the subfolder name (the nested key)
-            sub_folder = list(parsed_json[main_folder].keys())[0]  # "City Guides"
-
-            # Create the main folder
-            os.makedirs(main_folder, exist_ok=True)
-
-            # Create the subfolder inside the main folder
-            subfolder_path = os.path.join(main_folder, sub_folder)
-            os.makedirs(subfolder_path, exist_ok=True)
-
-            destination_file_path = os.path.join(subfolder_path, f"video_{videoID}.mp4")
-            # Copy the file
-            shutil.copy(video_path, destination_file_path)
-
-            # Create Json file
-            # jsonPath=destination_file_path.replace('.mp4','.json')
-            # fileName=destination_file_path.split('\\')[-1].replace('.mp4','')+'.json'
-            # jsonPath=os.path.join(destination_file_path.split('\\')[0:-1],fileName)
-            # with open(jsonPath,'w') as f:
-            #     f.write(str(json.dumps(base_parsed_json)))
-
-        except Exception as e:
-            print(str(e))
-            return ''
+            print(f"Error downloading {media_type}: {str(e)}")
+            return None
 
 
     def load_account(self):
@@ -368,45 +207,103 @@ class CrawlInstagram():
         return cl
 
     def get_explore_posts(self):
-        while(True):
+        while True:
             try:
                 time.sleep(3)
-                explore_items=self.cl.explore_page()
+                explore_items = self.cl.explore_page()
 
-                lst=explore_items['sectional_items']
+                lst = explore_items['sectional_items']
                 for item in lst:
                     try:
-                        if ('fill_items' in item['layout_content']):
-                            lst_1=item['layout_content']['fill_items']
-                        if ('medias' in item['layout_content']):
+                        if 'fill_items' in item['layout_content']:
+                            lst_1 = item['layout_content']['fill_items']
+                        if 'medias' in item['layout_content']:
                             lst_1 = item['layout_content']['medias']
 
                         for item1 in lst_1:
                             try:
-                                item_url=item1['media']['image_versions2']['candidates'][0]['url']
-                                print(f'image === {item_url}')
-                            except:
-                                ''
-                            try:
-                                lst_video = item1['media']['video_versions']
-                                for vid in lst_video:
-                                    videoURL=vid['url']
-                                    if (videoURL not in self.lst_videos):
-                                        print(f'video _{self.itter} ==== {videoURL} ')
-                                        self.future.append(self.executor.submit(self.downloadVideo,videoURL,str(self.itter)))
-                                        self.itter=self.itter+1
+                                # Prepare post data for MongoDB
+                                post_data = {
+                                    "id": item1['media'].get('id', ''),
+                                    "pk": item1['media'].get('pk', ''),
+                                    "taken_at": item1['media'].get('taken_at', ''),
+                                    "media_type": item1['media'].get('media_type', ''),
+                                    "code": item1['media'].get('code', ''),
+                                    "caption_text": item1['media'].get('caption', {}).get('text', ''),
+                                    "user_fullname": item1['media'].get('user', {}).get('full_name', ''),
+                                    "user_username": item1['media'].get('user', {}).get('username', ''),
+                                    "user_pk": item1['media'].get('user', {}).get('pk', ''),
+                                    "like_count": item1['media'].get('like_count', 0),
+                                    "comment_count": item1['media'].get('comment_count', 0),
+                                    "view_count": item1['media'].get('view_count', 0),
+                                    "play_count": item1['media'].get('play_count', 0),
+                                    "source": "explore",
+                                    "created_at": datetime.now(),
+                                    "thumbnail_url": item1['media']['image_versions2']['candidates'][0]['url'] if 'image_versions2' in item1['media'] else '',
+                                    "video_urls": [vid['url'] for vid in item1['media'].get('video_versions', [])]
+                                }
 
-                                        self.lst_videos.append(videoURL)
+                                # Save to MongoDB
+                                # Save to MongoDB - Update existing fields and add new ones
+                                update_fields = {
+                                    "like_count": post_data["like_count"],
+                                    "comment_count": post_data["comment_count"],
+                                    "view_count": post_data["view_count"],
+                                    "play_count": post_data["play_count"],
+                                    "last_updated": datetime.now()
+                                }
+                                
+                                self.posts_collection.update_one(
+                                    {"id": post_data["id"]},
+                                    {
+                                        "$set": update_fields,
+                                        "$setOnInsert": {k: v for k, v in post_data.items() if k not in update_fields}
+                                    },
+                                    upsert=True
+                                )
+
+                                # Download media files
+                                if 'image_versions2' in item1['media']:
+                                    item_url = item1['media']['image_versions2']['candidates'][0]['url']
+                                    print(f'image === {item_url}')
+                                    self.media_futures.append(
+                                        self.media_executor.submit(
+                                            self.download_media,
+                                            item_url,
+                                            'image',
+                                            post_data['id']
+                                        )
+                                    )
+                                
+                                if 'video_versions' in item1['media']:
+                                    for vid in item1['media']['video_versions']:
+                                        videoURL = vid['url']
+                                        if videoURL not in self.lst_videos:
+                                            print(f'video _{self.itter} ==== {videoURL} ')
+                                            self.media_futures.append(
+                                                self.media_executor.submit(
+                                                    self.download_media,
+                                                    videoURL,
+                                                    'video',
+                                                    str(self.itter)
+                                                )
+                                            )
+                                            self.itter += 1
+                                            self.lst_videos.append(videoURL)
+
                             except Exception as e:
-                                print(str(e))
-                                ''
+                                print(f"Error processing media item: {str(e)}")
+                                continue
 
-
-                    except:
+                    except Exception as e:
+                        print(f"Error processing section item: {str(e)}")
                         continue
-                print('zssd')
+                        
+                print('Explore page processed')
+                
             except Exception as e:
-                print(str(e))
+                print(f"Error fetching explore page: {str(e)}")
+                time.sleep(5)  # Wait longer on error
 
 
 
@@ -414,83 +311,100 @@ class CrawlInstagram():
 
     # --- Phase1 : Get post with HASHTAG----
     def get_hashtags(self):
-        with open('lst_hashtags.txt','r',encoding='utf-8') as f:
-            hastags=[a.replace('\n','') for a in f.readlines()]
+        """Fetch and process posts from hashtags"""
+        try:
+            # Read hashtags from file with error handling
+            with open('lst_hashtags.txt', 'r', encoding='utf-8') as f:
+                hashtags = [tag.strip() for tag in f.readlines() if tag.strip()]
 
-        for hashtag_name in hastags:
-            hashtag_sample = self.cl.hashtag_info(hashtag_name)
-            medias = self.cl.hashtag_medias_top(hashtag_name, amount=10)
-            for media in medias:
-                one_sample={}
-                one_sample['caption_text']=((str(media.caption_text)
-                                            .replace('\n',' ')
-                                            .replace('.',' ')).replace('➖', ',')
-                                            .replace('$','&').replace('-','')
-                                            .replace('#',' ').replace('@',' ')
-                                            .replace(',','').replace('_',' ')).strip().encode('utf8').decode('utf8')
+            for hashtag_name in hashtags:
+                try:
+                    # Get hashtag info and top media
+                    hashtag_info = self.cl.hashtag_info(hashtag_name)
+                    medias = self.cl.hashtag_medias_top(hashtag_name, amount=10)
 
-                one_sample["caption_text"] = remove_emojis(one_sample["caption_text"]).encode('utf8').decode('utf8')
-                one_sample["caption_text"] = remove_special_chars(one_sample["caption_text"]).encode('utf8').decode('utf8')
+                    for media in medias:
+                        # Process each media item
+                        media_data = self._prepare_media_data(media, hashtag_name)
+                        
+                        # Download media files
+                        if media_data['video_url']:
+                            self.media_futures.append(
+                                self.media_executor.submit(
+                                    self.download_media,
+                                    media_data['video_url'],
+                                    'video',
+                                    media_data['id']
+                                )
+                            )
 
-                one_sample['hashtag'] = hashtag_name
-                one_sample['code'] = media.code
-                one_sample['comment_count'] = media.comment_count
-                one_sample['id'] = media.id
-                one_sample['like_count'] = media.like_count
-                # one_sample['location'] = media.location
-                one_sample['location'] = ''
-                one_sample['media_type'] = media.media_type
-                one_sample['pk'] = media.pk
-                one_sample['play_count'] = media.play_count
-                one_sample['product_type'] = media.product_type
-                one_sample['taken_at'] = media.taken_at
-                one_sample['thumbnail_url'] = str(media.thumbnail_url) if media.thumbnail_url is not None else ''
-                one_sample['user_fullname'] = media.user.full_name
-                one_sample['user_isPrivate'] = media.user.is_private
-                one_sample['user_pk'] = media.user.pk
-                one_sample['user_profilePic'] =str(media.user.profile_pic_url)
-                one_sample['user_username'] = media.user.username
-                one_sample['usertags'] = str(media.usertags)
+                        if media_data['thumbnail_url']:
+                            self.media_futures.append(
+                                self.media_executor.submit(
+                                    self.download_media,
+                                    media_data['thumbnail_url'],
+                                    'image',
+                                    media_data['id']
+                                )
+                            )
 
-                one_sample['video_url'] = str(media.video_url) if media.video_url is not None else ''
-                one_sample['view_count'] = str(media.view_count) if media.view_count is not None else ''
+                        # Save to database if not exists
+                        self.posts_collection.update_one(
+                            {"id": media_data["id"]},
+                            {"$setOnInsert": media_data},
+                            upsert=True
+                        )
 
-                # ------------------
-                # download image or video
-                # -----------
-                if (one_sample['video_url'] != ''):
-                    videoURL = one_sample['video_url']
-                    videoID = one_sample['id']
+                except Exception as e:
+                    print(f"Error processing hashtag {hashtag_name}: {str(e)}")
+                    continue
 
-                    t1=datetime.now()
-                    response = requests.get(videoURL)
-                    with open(f"InstagramVideoDownloaded/video_{videoID}.mp4", "wb") as f:
-                        f.write(response.content)
-                    print(f'InstagramVideoDownloaded/video _ {videoID}___ is downloaded successfully.')
+        except Exception as e:
+            print(f"Error in get_hashtags: {str(e)}")
 
+    def _prepare_media_data(self, media, hashtag_name):
+        """Prepare media data dictionary"""
+        caption_text = str(media.caption_text or '')
+        
+        # Clean caption text
+        clean_caption = (caption_text.replace('\n', ' ')
+                        .replace('.', ' ')
+                        .replace('➖', ',')
+                        .replace('$', '&')
+                        .replace('-', '')
+                        .replace('#', ' ')
+                        .replace('@', ' ')
+                        .replace(',', '')
+                        .replace('_', ' ')
+                        .strip())
+        
+        clean_caption = remove_emojis(clean_caption)
+        clean_caption = remove_special_chars(clean_caption)
 
-
-
-
-
-
-                if (one_sample['thumbnail_url'] != ''):
-
-                    ImageURL = one_sample['thumbnail_url']
-                    response = requests.get(ImageURL)
-                    with open(f"InstagramImageDownloaded/Image_{one_sample['id'] }.jpg", "wb") as f:
-                        f.write(response.content)
-                    print(
-                        f'InstagramImageDownloaded/Image_ _ {one_sample['id']}___ is downloaded successfully.')
-
-
-
-                # Check if the ID exists and insert only if it does not exist
-                existing_doc = self.mycol_write_posts.find_one({"id": one_sample["id"]})
-                if not existing_doc:
-                    self.mycol_write_posts.insert_one(one_sample)
-
-            print(medias)
+        return {
+            'caption_text': clean_caption.encode('utf8').decode('utf8'),
+            'hashtag': hashtag_name,
+            'code': media.code,
+            'comment_count': media.comment_count,
+            'id': media.id,
+            'like_count': media.like_count,
+            'location': '',
+            'media_type': media.media_type,
+            'pk': media.pk,
+            'play_count': media.play_count,
+            'product_type': media.product_type,
+            'taken_at': media.taken_at,
+            'thumbnail_url': str(media.thumbnail_url) if media.thumbnail_url else '',
+            'user_fullname': media.user.full_name,
+            'user_isPrivate': media.user.is_private,
+            'user_pk': media.user.pk,
+            'user_profilePic': str(media.user.profile_pic_url),
+            'user_username': media.user.username,
+            'usertags': str(media.usertags),
+            'video_url': str(media.video_url) if media.video_url else '',
+            'view_count': str(media.view_count) if media.view_count else '',
+            'created_at': datetime.now()
+        }
 
     def get_Comments(self,hashtag):
 
@@ -638,17 +552,245 @@ class CrawlInstagram():
 
             time.sleep(3)
 
+    def Batch_ai(self):
+
+        directory = "InstagramVideoDownloaded"
+
+        # Create new collection for AI results
+        self.mycol_ai_results = self.mydb2["AI_Analysis_Results"]
+
+        path = Path(directory)
+        files = [file.name for file in path.iterdir() if file.is_file()]
+
+        for file in files:
+            file_path = os.path.join(directory, file)
+            self.future_ai.append(self.executorAI.submit(self.google_ai_perform_and_save, file_path, file))
+
+        print('Processing started...')
+
+        t1 = datetime.now()
+        for fu in self.future_ai:
+            try:
+                fu.result()
+            except Exception as e:
+                print(f'a task failed with error {e}')
+        t2 = datetime.now()
+        spendtime = (t2 - t1).total_seconds()
+        print(f'SpendTime =={spendtime}')
+        print('finish')
+
+    def process_media_with_ai(self, media_type='video'):
+        """Process all media files with Google AI"""
+        directory = "InstagramVideoDownloaded" if media_type == 'video' else "InstagramImageDownloaded"
+        processor = self.google_ai_perform_and_save if media_type == 'video' else self.google_ai_perform_image
+        
+        try:
+            # Get all media files
+            files = list(Path(directory).glob('*.*'))
+            if not files:
+                print(f"No files found in {directory}")
+                return
+
+            print(f"Processing {len(files)} {media_type} files...")
+            start_time = datetime.now()
+
+            # Process files in parallel
+            futures = []
+            for file_path in files:
+                futures.append(
+                    self.executorAI.submit(
+                        processor,
+                        str(file_path),
+                        file_path.name
+                    )
+                )
+
+            # Wait for all tasks to complete
+            for future in futures:
+                try:
+                    future.result(timeout=300)  # 5 minutes timeout per file
+                except Exception as e:
+                    print(f"Task failed: {str(e)}")
+
+            elapsed_time = (datetime.now() - start_time).total_seconds()
+            print(f"Processing completed in {elapsed_time:.2f} seconds")
+
+        except Exception as e:
+            print(f"Error in batch processing: {str(e)}")
+
+    def google_ai_perform_and_save(self, video_path, videoID):
+        """Process video with Google AI and save results"""
+        try:
+            # Initialize AI client and process video
+            client_ai = googleAI()
+            client_ai.UploadVideo(video_path)
+            ai_response = client_ai.GetAI()
+
+            if not ai_response:
+                print(f"No AI response for video {videoID}")
+                return
+
+            # Extract topics safely
+            topics_dict = ai_response.get("Topics", {})
+            
+            # Prepare AI analysis result
+            ai_result = {
+                "video_id": videoID,
+                "video_path": video_path,
+                "analysis_date": datetime.now(),
+                "raw_ai_response": ai_response,
+                "content_type": ["Video"],
+                "topics": list(topics_dict.keys()),
+                "emotions": ai_response.get("Subcategory of Feels and Emotion", []),
+                "languages": ai_response.get("Language", []),
+                "sensitivity": ai_response.get("Sensitivity", []),
+                "gender": ai_response.get("Gender", []),
+                "audience": ai_response.get("Audience", []),
+                "age_range": ai_response.get("Age Range", []),
+                "true_explore_mode": "Enabled",
+                "credibility": ["Regular Poster"],
+                "social_activities": [],
+                "content_verification": ai_response.get("Content Verification", []),
+                "source": ["User Generated"],
+                "post_time": ["Today"],
+                "sentiment": ["Neutral"],
+                "lifestyles_personal": list(topics_dict.get("Lifestyle & Personal", {}).keys()),
+                "trends": ["Stable"]
+            }
+
+            # Save to MongoDB
+            self.ai_results_collection.update_one(
+                {"video_id": videoID},
+                {"$set": ai_result},
+                upsert=True
+            )
+
+            # Organize files in categorized folders
+            self._organize_media_files(ai_response, video_path, videoID, 'video')
+            
+            return True
+
+        except Exception as e:
+            print(f"Error processing video {videoID}: {str(e)}")
+            return False
+
+    def google_ai_perform_image(self, image_path, imageID):
+        """Process image with Google AI and save results"""
+        try:
+            # Initialize AI client and process image
+            client_ai = googleAI()
+            ai_response = client_ai.GetAI_Image(image_path)
+            
+            if not ai_response:
+                print(f"No AI response for image {imageID}")
+                return
+
+            # Extract topics
+            topics = ai_response.get('topics', ai_response.get('Topics', {}))
+            
+            # Save results and organize files
+            self._organize_media_files(topics, image_path, imageID, 'image')
+            
+            return True
+
+        except Exception as e:
+            print(f"Error processing image {imageID}: {str(e)}")
+            return False
+
+    def _organize_media_files(self, ai_response, source_path, media_id, media_type):
+        """Organize media files based on AI analysis"""
+        try:
+            # Get main category and subcategory
+            main_category = list(ai_response.keys())[0]
+            sub_category = list(ai_response[main_category].keys())[0]
+
+            # Create folder structure
+            category_path = os.path.join(main_category, sub_category)
+            os.makedirs(category_path, exist_ok=True)
+
+            # Determine file extension
+            extension = '.mp4' if media_type == 'video' else '.jpg'
+            
+            # Copy file to categorized folder
+            dest_path = os.path.join(category_path, f"{media_type}_{media_id}{extension}")
+            shutil.copy2(source_path, dest_path)  # copy2 preserves metadata
+
+            # Optional: Save AI response as JSON
+            json_path = dest_path.replace(extension, '.json')
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(ai_response, f, ensure_ascii=False, indent=2)
+
+        except Exception as e:
+            print(f"Error organizing {media_type} {media_id}: {str(e)}")
+
+    def google_ai_perform(self, video_path, videoID):
+        # ---
+        try:
+            clientAI = googleAI()
+            clientAI.UploadVideo(video_path)
+            parsed_json = clientAI.GetAI()
+            base_parsed_json = parsed_json
+            # t2 = datetime.now()
+            # spendTime = (t2 - t1).total_seconds()
+            # print(f'Timespend ==== {spendTime}')
+            try:
+                parsed_json = parsed_json['topics']
+            except:
+                ''
+            try:
+                parsed_json = parsed_json['Topics']
+            except:
+                ''
+            # ---- insert into folder
+            # Get the main folder name (the top-level key)
+            try:
+                main_folder = list(parsed_json.keys())[0]  # "Travel, Adventure & Nature"
+            except:
+                return ''
+
+            # Get the subfolder name (the nested key)
+            sub_folder = list(parsed_json[main_folder].keys())[0]  # "City Guides"
+
+            # Create the main folder
+            os.makedirs(main_folder, exist_ok=True)
+
+            # Create the subfolder inside the main folder
+            subfolder_path = os.path.join(main_folder, sub_folder)
+            os.makedirs(subfolder_path, exist_ok=True)
+
+            destination_file_path = os.path.join(subfolder_path, f"video_{videoID}.mp4")
+            # Copy the file
+            shutil.copy(video_path, destination_file_path)
+
+            # Create Json file
+            # jsonPath=destination_file_path.replace('.mp4','.json')
+            # fileName=destination_file_path.split('\\')[-1].replace('.mp4','')+'.json'
+            # jsonPath=os.path.join(destination_file_path.split('\\')[0:-1],fileName)
+            # with open(jsonPath,'w') as f:
+            #     f.write(str(json.dumps(base_parsed_json)))
+
+        except Exception as e:
+            print(str(e))
+            return ''
 
 
-#-- calling
+#-- initialize
 obj_insta=CrawlInstagram()
+
 
 #=========================
 # get Explore
-# obj_insta.get_explore_posts()
+obj_insta.get_explore_posts()
+
 
 # AI for Video
-obj_insta.Batch_ai()
+# For videos
+# obj_insta.process_media_with_ai('video')
+
+# For images
+# obj_insta.process_media_with_ai('image')
+
+
 
 #AI for Image
 # obj_insta.Batch_ai_Image()
@@ -657,6 +799,8 @@ obj_insta.Batch_ai()
 
 
 
+
+#--- Other ----
 # obj_insta.get_hashtags()
 # hashtag='بدنسازی'
 # obj_insta.get_Comments(hashtag)
