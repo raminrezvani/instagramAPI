@@ -1,0 +1,28 @@
+{
+  "Topics": {
+    "Food & Cooking": {
+      "Home Cooking": "Simple recipes that can be prepared at home"
+    }
+  },
+  "Language": "Arabic (العربية)",
+  "Subcategory of Feels and Emotion": "Happy",
+  "Age Range ": "25-34",
+  "Content Verification": {
+    "Views": "4"
+  },
+  "Sensitivity": "Mild",
+  "Gender": "Female",
+  "Audience": "Foodies & Lifestyle",
+  "Fear and Phobias": null,
+  "Digital Mental Health": null,
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "High Engagement",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

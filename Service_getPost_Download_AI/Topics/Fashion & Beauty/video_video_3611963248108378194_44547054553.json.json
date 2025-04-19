@@ -1,0 +1,44 @@
+{
+  "Topics": {
+    "Fashion & Beauty": {
+      "Daily Style": "Outfit combinations for different situations"
+    }
+  },
+  "Language": {
+    "English": null
+  },
+  "Subcategory of Feels and Emotion": {
+    "Inspired": null
+  },
+  "Age Range ": {
+    "18-24": null
+  },
+  "Content Verification": {
+    "7. Verified Badge": null
+  },
+  "Sensitivity": {
+    "Neutral": null
+  },
+  "Gender": {
+    "Female": null
+  },
+  "Audience": {
+    "2. Fashion & Beauty Enthusiasts": null
+  },
+  "Fear and Phobias": {
+    "Neutral": null
+  },
+  "Digital Mental Health": {
+    "Neutral": null
+  },
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Verified Account",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

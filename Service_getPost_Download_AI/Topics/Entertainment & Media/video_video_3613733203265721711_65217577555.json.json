@@ -1,0 +1,26 @@
+{
+  "Topics": {
+    "Entertainment & Media": {
+      "Film & TV Series": "Introduction, critique, and analysis of cinematic and television works"
+    }
+  },
+  "Language": "Arabic (العربية)",
+  "Subcategory of Feels and Emotion": "Happy",
+  "Age Range ": "25-34",
+  "Content Verification": "4. Views",
+  "Sensitivity": "Neutral",
+  "Gender": "Male",
+  "Audience": "8. Entertainment Fans",
+  "Fear and Phobias": null,
+  "Digital Mental Health": null,
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Verified Account",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "This Week",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

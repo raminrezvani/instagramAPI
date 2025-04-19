@@ -1,0 +1,26 @@
+{
+  "Topics": {
+    "Entertainment & Media": {
+      "Film & TV Series": "Introduction, critique, and analysis of cinematic and television works"
+    }
+  },
+  "Language": "English",
+  "Subcategory of Feels and Emotion": "Excited",
+  "Age Range ": "18-24",
+  "Content Verification": "8. High Likes",
+  "Sensitivity": "Neutral",
+  "Gender": "Other",
+  "Audience": "8. Entertainment Fans",
+  "Fear and Phobias": null,
+  "Digital Mental Health": null,
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "High Engagement",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "This Week",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

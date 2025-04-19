@@ -1,0 +1,58 @@
+{
+  "Topics": {
+    "Lifestyle & Personal": {
+      "Daily Vlogs": "Recording everyday moments and personal activities"
+    }
+  },
+  "Language": {
+    "Persian": "Persian"
+  },
+  "Subcategory of Feels and Emotion": {
+    "Sad": "Sad"
+  },
+  "Age Range ": {
+    "18-24": "18-24"
+  },
+  "Content Verification": {
+    "4. Views": "Views"
+  },
+  "Sensitivity": {
+    "Mild": "Mild"
+  },
+  "Gender": {
+    "Male": "Male"
+  },
+  "Audience": {
+    "4. Foodies & Lifestyle": "Foodies & Lifestyle"
+  },
+  "Fear and Phobias": {
+    "Fear of Miscarriage (Antepartum Anxiety)": "Panic from stats on pregnancy loss or sad miscarriage stories."
+  },
+  "Digital Mental Health": {
+    "Harmful behaviors": {
+      "Self-harm": "Self-harm",
+      "Feels and Emotion": {
+        "Deep Hopelessness": "Deep Hopelessness"
+      },
+      "Sensitivity ": {
+        "Psychological Triggers": "Psychological Triggers"
+      },
+      "Fear and Phobias": {
+        "Severe Phobia Triggers": "Severe Phobia Triggers"
+      },
+      "Age Range": {
+        " Adolescent Vulnerability": " Adolescent Vulnerability"
+      }
+    }
+  },
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Regular Poster",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "This Week",
+    "sentiment": "Negative",
+    "trends": "Trending"
+  }
+}

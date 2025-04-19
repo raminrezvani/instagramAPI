@@ -1,0 +1,28 @@
+{
+  "Topics": {
+    "Fashion & Beauty": {
+      "Daily Style": "Outfit combinations for different situations"
+    }
+  },
+  "Language": "Arabic (العربية)",
+  "Subcategory of Feels and Emotion": "Happy",
+  "Age Range ": "18-24",
+  "Content Verification": {
+    "1. Likes": "High Likes"
+  },
+  "Sensitivity": "Neutral",
+  "Gender": "Female",
+  "Audience": "2. Fashion & Beauty Enthusiasts",
+  "Fear and Phobias": null,
+  "Digital Mental Health": null,
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Verified Account",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

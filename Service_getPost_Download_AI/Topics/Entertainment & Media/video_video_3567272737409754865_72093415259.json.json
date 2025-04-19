@@ -1,0 +1,59 @@
+{
+  "Topics": {
+    "Entertainment & Media": {
+      "Film & TV Series": "Introduction, critique, and analysis of cinematic and television works"
+    }
+  },
+  "Language": {
+    "Persian": ""
+  },
+  "Subcategory of Feels and Emotion": {
+    "Sad": ""
+  },
+  "Age Range ": {
+    "13-17": ""
+  },
+  "Content Verification": {
+    "4. Views": ""
+  },
+  "Sensitivity": {
+    "Mild": ""
+  },
+  "Gender": {
+    "Male": ""
+  },
+  "Audience": {
+    "8. Entertainment Fans": ""
+  },
+  "Fear and Phobias": {
+    "16. FOMO-Phobia (Fear of Missing Out)": ""
+  },
+  "Digital Mental Health": {
+    "Harmful behaviors": {
+      "Suicide": {
+        "Feels and Emotion": {
+          "Deep Hopelessness": ""
+        },
+        "Sensitivity ": {
+          "High Sensitivity (Mental Health)": ""
+        },
+        " Fear and Phobias": {
+          "Trauma Triggers": ""
+        },
+        "Age Range": {
+          " Adolescent Vulnerability": ""
+        }
+      }
+    }
+  },
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "High Engagement",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "This Week",
+    "sentiment": "Negative",
+    "trends": "Trending"
+  }
+}

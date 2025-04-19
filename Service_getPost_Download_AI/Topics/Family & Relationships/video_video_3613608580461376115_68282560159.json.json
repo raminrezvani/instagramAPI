@@ -1,0 +1,26 @@
+{
+  "Topics": {
+    "Family & Relationships": {
+      "Child Rearing": "Methods for raising children and adolescents"
+    }
+  },
+  "Language": "Arabic (العربية)",
+  "Subcategory of Feels and Emotion": "Happy",
+  "Age Range ": "Under 13",
+  "Content Verification": "Verified Badge",
+  "Sensitivity": "Mild",
+  "Gender": "Male",
+  "Audience": "Young Parents",
+  "Fear and Phobias": null,
+  "Digital Mental Health": null,
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Verified Account",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

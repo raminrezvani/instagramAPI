@@ -1,0 +1,46 @@
+{
+  "Topics": {
+    "Entertainment & Media": {
+      "Humor & Memes": "Entertaining content, jokes, and funny trends"
+    }
+  },
+  "Language": "English",
+  "Subcategory of Feels and Emotion": "Happy",
+  "Age Range ": "18-24",
+  "Content Verification": {
+    "1. Likes": "High Likes"
+  },
+  "Sensitivity": "Mild",
+  "Gender": "Female",
+  "Audience": "Entertainment Fans",
+  "Fear and Phobias": {
+    "16. FOMO-Phobia (Fear of Missing Out)": "Anxiety from seeing others’ perfect lives or exclusive events"
+  },
+  "Digital Mental Health": {
+    "Harmful behaviors": {
+      "Suicide": "Suicide",
+      "Feels and Emotion": {
+        "Deep Hopelessness": "Deep Hopelessness"
+      },
+      "Sensitivity ": {
+        "High Sensitivity (Mental Health)": "High Sensitivity (Mental Health)"
+      },
+      "Fear and Phobias": {
+        "Severe Phobia Triggers": "Severe Phobia Triggers"
+      },
+      "Age Range": {
+        " Adolescent Vulnerability": " Adolescent Vulnerability"
+      }
+    }
+  },
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "High Engagement",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "Topics": {
+    "Fashion & Beauty": {
+      "Daily Style": "Outfit combinations for different situations"
+    }
+  },
+  "Language": {
+    "English": "English"
+  },
+  "Subcategory of Feels and Emotion": {
+    "Happy": "Happy"
+  },
+  "Age Range ": {
+    "25-34": "25-34"
+  },
+  "Content Verification": {
+    "1. Likes": "Likes"
+  },
+  "Sensitivity": {
+    "Neutral": "Neutral"
+  },
+  "Gender": {
+    "Female": "Female"
+  },
+  "Audience": {
+    "2. Fashion & Beauty Enthusiasts": "Fashion & Beauty Enthusiasts"
+  },
+  "Fear and Phobias": {},
+  "Digital Mental Health": {},
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Verified Account",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

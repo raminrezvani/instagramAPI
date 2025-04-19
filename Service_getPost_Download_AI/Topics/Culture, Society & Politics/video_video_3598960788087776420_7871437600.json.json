@@ -1,0 +1,30 @@
+{
+  "Topics": {
+    "Culture, Society & Politics": {
+      "Social Movements": "Activism and collective movements"
+    }
+  },
+  "Language": "Persian",
+  "Subcategory of Feels and Emotion": "Sad",
+  "Age Range ": "18-24",
+  "Content Verification": "5. Engagement Rate",
+  "Sensitivity": "Moderate",
+  "Gender": "Female",
+  "Audience": "4. Foodies & Lifestyle",
+  "Fear and Phobias": "10. Thanatophobia (Fear of Death)",
+  "Digital Mental Health": {
+    "Harmful behaviors": {
+      "Mental Health Misinformation": "Mental Health Misinformation"
+    }
+  },
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Regular Poster",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Negative",
+    "trends": "Trending"
+  }
+}

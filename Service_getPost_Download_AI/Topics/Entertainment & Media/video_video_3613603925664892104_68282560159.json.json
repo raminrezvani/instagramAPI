@@ -1,0 +1,30 @@
+{
+  "Topics": {
+    "Entertainment & Media": {
+      "Film & TV Series": "Introduction, critique, and analysis of cinematic and television works"
+    }
+  },
+  "Language": "Arabic (العربية)",
+  "Subcategory of Feels and Emotion": "Excited",
+  "Age Range ": "18-24",
+  "Content Verification": {
+    "Views": "4. Views"
+  },
+  "Sensitivity": "Mild",
+  "Gender": "Female",
+  "Audience": "Entertainment Fans",
+  "Fear and Phobias": {},
+  "Digital Mental Health": {
+    "Harmful behaviors": {}
+  },
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Regular Poster",
+    "socialActivities": "Shares",
+    "source": "User Generated",
+    "postTime": "This Week",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "Topics": {
+    "Lifestyle & Personal": {
+      "Daily Vlogs": "Recording everyday moments and personal activities"
+    }
+  },
+  "Language": "Arabic (العربية)",
+  "Subcategory of Feels and Emotion": "Happy",
+  "Age Range ": "All Ages",
+  "Content Verification": {
+    "5. Engagement Rate": "Engagement Rate"
+  },
+  "Sensitivity": "Neutral",
+  "Gender": "Other",
+  "Audience": "Foodies & Lifestyle",
+  "Fear and Phobias": {
+    "18. Misophonia (Sound Sensitivity)": "Irritation from loud chewing videos, ASMR gone wrong, or sudden screams."
+  },
+  "Digital Mental Health": {
+    "Harmful behaviors": {
+      "Suicide": "Suicide"
+    }
+  },
+  "API Configuration": {
+    "trueExploreMode": "Enabled",
+    "contentType": "Video",
+    "credibility": "Verified Account",
+    "socialActivities": "Comments",
+    "source": "User Generated",
+    "postTime": "Today",
+    "sentiment": "Positive",
+    "trends": "Trending"
+  }
+}
