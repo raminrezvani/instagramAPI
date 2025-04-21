@@ -30,7 +30,7 @@ if __name__ == "__main__":
         'emotions': 'Happy',
         'audience': 'Fashion & Beauty',
         # 'gender': 'Female',
-        'gender': 'Male',
+        'gender': 'Male,Female',
         'postTime': ['Today']
     }
     
