@@ -2,8 +2,9 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import json_util
 import json
-
+from flask_cors import CORS  # Import CORS
 app = Flask(__name__)
+CORS(app)  # This allows all origins by default
 
 # MongoDB Connection Setup
 client = MongoClient('mongodb://45.149.76.168:13667')
@@ -12,41 +13,56 @@ collection = db["Post_INFO_1404"]
 
 @app.route('/search', methods=['POST'])
 def search_posts():
-    # Get query parameters from request and validate
     try:
         request_data = request.json
         if not request_data or not isinstance(request_data, dict):
             return jsonify({"error": "Invalid request format"}), 400
         
-        # Extract query data
-        test_data = request_data.get('data', [{}])[0]
-        if not isinstance(test_data, dict):
-            return jsonify({"error": "Invalid query format"}), 400
+        # Extract query data - handle both formats
+        if 'data' in request_data and isinstance(request_data['data'], list):
+            filters = request_data['data'][0].get('filters', {})
+        else:
+            filters = request_data.get('filters', {})
+            
+        if not isinstance(filters, dict):
+            return jsonify({"error": "Invalid filters format"}), 400
     except Exception as e:
         return jsonify({"error": f"Invalid request: {str(e)}"}), 400
     
-    # Create MongoDB query
+    # Define field mappings
+    field_mappings = {
+        'contentType': 'content_type',
+        'trueExploreMode': 'true_explore_mode',
+        'socialActivities': 'social_activities',
+        'contentVerification': 'content_verification',
+        'AgeRange': 'age_range',
+        'postTime': 'post_time',
+        'lifestylesPersonal': 'lifestyles_personal',
+        'terends': 'trends',  # Fix typo in original field name
+        # Fields that are the same in both
+        'credibility': 'credibility',
+        'topics': 'topics',
+        'languages': 'languages',
+        'emotions': 'emotions',
+        'audience': 'audience',
+        'source': 'source',
+        'gender': 'gender',
+        'sensitivity': 'sensitivity',
+        'sentiment': 'sentiment'
+    }
+
+    # Create MongoDB query with mapped fields
     query = {}
-    for field, value in test_data.items():
+    for field, value in filters.items():
         if not value:  # Skip empty values
             continue
             
-        # Map field names to database field names
-        db_field = field  # Default mapping
-        if field == 'trueExploreMode':
-            db_field = 'true_explore_mode'
-        elif field == 'contentType':
-            db_field = 'content_type'
-        elif field == 'socialActivities':
-            db_field = 'social_activities'
-        elif field == 'contentVerification':
-            db_field = 'content_verification'
-        elif field == 'AgeRange':
-            db_field = 'age_range'
-        elif field == 'postTime':
-            db_field = 'post_time'
-        elif field == 'lifestylesPersonal':
-            db_field = 'lifestyles_personal'
+        # Get the corresponding database field name
+        db_field = field_mappings.get(field, field)
+        
+        # Handle special value mappings
+        if field == 'trueExploreMode' and value == 'True Explore Mode':
+            value = 'Enabled'
         
         # Add to query with improved matching
         if isinstance(value, list):
@@ -105,5 +121,5 @@ def search_posts():
     return json_util.dumps(results), 200, {'Content-Type': 'application/json'}
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0', port=5000)
+    app.run(debug=True,host='0.0.0.0', port=8765)
                     

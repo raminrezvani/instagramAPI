@@ -2,7 +2,8 @@ import requests
 import json
 
 def search_posts(query_data):
-    url = "http://116.203.102.233:5000/search"
+    url = "http://185.221.237.210:8765/search"
+    # url = "http://localhost:8765/search"
     headers = {"Content-Type": "application/json"}
     
     # Example query data structure
@@ -25,14 +26,28 @@ def search_posts(query_data):
 if __name__ == "__main__":
     # Sample query
     query = {
-        'contentType': ['Video'],
-        'languages': 'English',
-        'emotions': 'Happy',
-        'audience': 'Fashion & Beauty',
-        # 'gender': 'Female',
-        'gender': 'Male,Female',
-        'postTime': ['Today']
-    }
+  "filters": {
+    "contentType": [],
+    "trueExploreMode": "True Explore Mode",
+    "credibility": [],
+    "topics": [],
+    "socialActivities": [],
+    "languages": [],
+    "emotions": [],
+    "contentVerification": [],
+    "audience": [],
+    "source": [],
+    "gender": [
+      "Male"
+    ],
+    "AgeRange": [],
+    "postTime": [],
+    "sensitivity": [],
+    "sentiment": [],
+    "lifestylesPersonal": [],
+    "terends": []
+  }
+}
     
     # Execute search
     results = search_posts(query)
