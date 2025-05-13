@@ -20,7 +20,6 @@ from pathlib import Path
 # loader = Instaloader()
 #
 # # Log in as the other user
-# loader.login("sirpostchirr@gmail.com", "rezvanrr2001")  # Replace with their credentials
 #
 # # Get their profile
 # profile = Profile.from_username(loader.context, loader.context.username)
@@ -57,8 +56,7 @@ import json
 # cl = Client()
 # print('asdasd')
 # cl.login(ACCOUNT_USERNAME, ACCOUNT_PASSWORD)
-# ACCOUNT_USERNAME='sirpostchirr@gmail.com'
-# ACCOUNT_PASSWORD='rezvanrr2001'
+
 
 
 ACCOUNT_USERNAME='0101test0101'
